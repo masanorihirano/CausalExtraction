@@ -587,7 +587,7 @@ public class CausalExtraction {
 					}
 					causal.clue = clue;
 					causal.sentence = sentence;
-					causal.filePath = fileName;
+					//causal.filePath = fileName;
 					causal.line = count;
 					causalList.add(causal);
 				}

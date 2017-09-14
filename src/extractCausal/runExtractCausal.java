@@ -14,6 +14,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import utilities.FileUtilities;
+import java.io.*;
 
 public class runExtractCausal implements Callable<ArrayList<Causal>> {
 	private String fileName;
@@ -38,14 +39,14 @@ public class runExtractCausal implements Callable<ArrayList<Causal>> {
 	 * JSON形式の出力を行う(同期的に)
 	 * @param causalList カボリスト
 	 */
-	public static synchronized void printJson(ArrayList<Causal> causalList) {
+	public static synchronized void printJson(PrintWriter pw,ArrayList<Causal> causalList) {
 		for (Causal causal : causalList) {
 			if (!flag) {
-				System.out.print(causal.toJson());
+				pw.print(causal.toJson());
 				flag = true;
 			} else {
-				System.out.println(",");
-				System.out.print(causal.toJson());
+				pw.println(",");
+				pw.print(causal.toJson());
 			}
 		}
 	}
@@ -107,22 +108,41 @@ public class runExtractCausal implements Callable<ArrayList<Causal>> {
 		setArgs(args);
 		
 		// 手がかり表現と指示詞リストの読み込み
-		CausalExtraction.setDemonList(FileUtilities.readLines("demonstrative_list.txt"));
-		CausalExtraction.setClueList(FileUtilities.readClueList("clue_list.txt"));
+		String jar_path = System.getProperty("java.class.path");
+		String jar_path2 = jar_path.substring(0,jar_path.lastIndexOf("/")+1);
+		CausalExtraction.setDemonList(FileUtilities.readLines(jar_path2+"demonstrative_list.txt"));
+		CausalExtraction.setClueList(FileUtilities.readClueList(jar_path2+"clue_list.txt"));
 		
 		// PrefixPatternを使うようにしてあれば
 		if (patternFlag) {
 			CausalExtraction.setAdditionalData(FileUtilities.readAdditionalData(patternFilePath));
 		}
 
-		String[] files = FileUtilities.readLines(filePath);
-		ExecutorService ex = Executors.newFixedThreadPool(threadNum);
-		CompletionService<ArrayList<Causal>> completion = new ExecutorCompletionService<ArrayList<Causal>>(ex);
-		for (int i = 0; i < files.length; i++) {
-			completion.submit(new runExtractCausal(files[i]));
+		//String[] files = FileUtilities.readLines(filePath);
+		//ExecutorService ex = Executors.newFixedThreadPool(threadNum);
+		//CompletionService<ArrayList<Causal>> completion = new ExecutorCompletionService<ArrayList<Causal>>(ex);
+		//for (int i = 0; i < files.length; i++) {
+		//	completion.submit(new runExtractCausal(files[i]));
+		//}
+		String path = new File(".").getAbsoluteFile().getParent();
+		try{
+			File file = new File(path+"/"+filePath + "-result.txt");
+			FileWriter fw = new FileWriter(file);
+			BufferedWriter bw = new BufferedWriter(fw);
+			PrintWriter pw = new PrintWriter(bw);
+			
+			CausalExtraction job = new CausalExtraction();
+			
+			runExtractCausal.printJson( pw, job.getInga(path+"/"+filePath));
+			pw.println();
+			
+			pw.close();
+		} catch (FileNotFoundException e) {
+			System.err.println(e);
+		} catch (IOException e) {
+			System.err.println(e);
 		}
-		
-		ex.shutdown();
+		/*ex.shutdown();
 
 		System.out.println("[");
 		for (int i = 0; i < files.length; i++) {
@@ -138,7 +158,8 @@ public class runExtractCausal implements Callable<ArrayList<Causal>> {
 			}
 		}
 		System.out.println();
-		System.out.println("]");
+		System.out.println("]");*/
+
 	}
 
 }
