@@ -132,10 +132,10 @@ public class runExtractCausal implements Callable<ArrayList<Causal>> {
 			PrintWriter pw = new PrintWriter(bw);
 			
 			CausalExtraction job = new CausalExtraction();
-			
+			pw.println("[");
 			runExtractCausal.printJson( pw, job.getInga(path+"/"+filePath));
 			pw.println();
-			
+			pw.print("]");
 			pw.close();
 		} catch (FileNotFoundException e) {
 			System.err.println(e);

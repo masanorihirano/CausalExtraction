@@ -7,7 +7,7 @@ public class Causal {
 	public String subj = "";
 	public String pattern = "";
 	public String clue = "";
-	public String filePath = "";
+	//public String filePath = "";
 	public int line;
 	public String sentence ="";
 
@@ -30,7 +30,7 @@ public class Causal {
 		json += "\"result\": " + "\"" + this.result + "\", ";
 		json += "\"subj\": " + "\"" + this.subj + "\", ";
 		json += "\"pattern\": " + "\"" + this.pattern + "\", ";
-		json += "\"filePath\": " + "\"" + this.filePath + "\", ";
+		//json += "\"filePath\": " + "\"" + this.filePath + "\", ";
 		json += "\"line\": " + this.line;
 		json += "}";
 		return json;
